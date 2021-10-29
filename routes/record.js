@@ -22,4 +22,15 @@ recordRoutes.route('/record').get((req, res) => {
     });
 });
 
+recordRoutes.route('/post').get((req, res) => {
+  let db_connect = dbo.getDb('leaderboard');
+  db_connect
+    .collection('posts')
+    .find({})
+    .toArray((err, result) => {
+      if (err) throw err;
+      res.json(result);
+    });
+})
+
 module.exports = recordRoutes;
