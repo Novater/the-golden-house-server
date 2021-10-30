@@ -75,8 +75,26 @@ recordRoutes.route('/post/update').post((req, res) => {
     .catch(err => {
       console.log(err);
     });
+});
 
+recordRoutes.route('/post/create').post((req, res) => {
+  const { tabname, index } = req.body;
+  let db_connect = dbo.getDb('leaderboard');
 
+  let newDoc = {
+    title: 'New Post',
+    content: 'New Post Content',
+    tabname
+  };
+
+  db_connect
+    .collection('posts')
+    .insertOne(newDoc, (err, result) => {
+      if (err) throw err;
+      
+      console.log('result', result);
+      res.json(result);
+    });
 });
 
 module.exports = recordRoutes;
