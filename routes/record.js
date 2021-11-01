@@ -11,10 +11,12 @@ const dbo = require('../db/conn');
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require('mongodb').ObjectId;
 
-recordRoutes.route('/record').get((req, res) => {
+recordRoutes.route('/record/:collection').get((req, res) => {
+  const { collection } = req.params;
+  console.log('connect');
   let db_connect = dbo.getDb('leaderboard');
   db_connect
-    .collection('entries')
+    .collection(collection)
     .find({})
     .toArray((err, result) => {
       if (err) throw err;
@@ -91,7 +93,7 @@ recordRoutes.route('/post/create').post((req, res) => {
     .collection('posts')
     .insertOne(newDoc, (err, result) => {
       if (err) throw err;
-      
+
       console.log('result', result);
       res.json(result);
     });
