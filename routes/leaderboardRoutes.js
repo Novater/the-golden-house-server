@@ -10,9 +10,21 @@ const dbo = require('../db/conn');
 
 const ObjectId = require('mongodb').ObjectId;
 
+leaderboardRoutes.route('/table/:tableName').get((req, res) => {
+  const { tableName } = req.params;
+  let db_connect = dbo.getDb('leaderboard');
+  let query = { tablename: tableName }
+  db_connect
+    .collection('table')
+    .find(query)
+    .toArray((err, result) => {
+      if (err) throw err;
+      res.json(result);
+    });
+});
+
 leaderboardRoutes.route('/record/:collection').get((req, res) => {
   const { collection } = req.params;
-  console.log('connect');
   let db_connect = dbo.getDb('leaderboard');
   db_connect
     .collection(collection)
