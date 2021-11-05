@@ -19,7 +19,7 @@ leaderboardRoutes.route('/table/:tableName').get((req, res) => {
     .find(query)
     .toArray((err, result) => {
       if (err) throw err;
-      res.json(result);
+      res.json(result[0]);
     });
 });
 
