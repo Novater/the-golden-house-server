@@ -2,8 +2,7 @@ const express = require('express');
 
 const pageRoutes = express.Router();
 
-const dbo = require('../;db/conn');
-
+const dbo = require('../db/conn');
 
 pageRoutes.route('/page').get((req, res) => {
   let db_connect = dbo.getDb('content');
@@ -13,7 +12,7 @@ pageRoutes.route('/page').get((req, res) => {
     .toArray((err, result) => {
       if (err) throw err;
       res.json(result);
-    })
+    });
 });
 
 module.exports = pageRoutes;

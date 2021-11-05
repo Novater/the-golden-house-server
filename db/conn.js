@@ -26,6 +26,6 @@ module.exports = {
   },
 
   getDb: (dbName) => {
-    if (dbName) return db.db(dbs[dbName]);
+    if (dbName) return dbs[dbName];
   },
 };
