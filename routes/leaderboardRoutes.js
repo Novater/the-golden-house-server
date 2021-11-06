@@ -26,9 +26,23 @@ leaderboardRoutes.route('/table/:tableName').get((req, res) => {
 leaderboardRoutes.route('/record/:collection').get((req, res) => {
   const { collection } = req.params;
   let db_connect = dbo.getDb('leaderboard');
+  const query = { approved: true };
   db_connect
     .collection(collection)
-    .find({})
+    .find(query)
+    .toArray((err, result) => {
+      if (err) throw err;
+      res.json(result);
+    });
+});
+
+leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
+  const { collection } = req.params;
+  let db_connect = dbo.getDb('leaderboard');
+  const query = { approved: { $in: [null, false] } };
+  db_connect
+    .collection(collection)
+    .find(query)
     .toArray((err, result) => {
       if (err) throw err;
       res.json(result);
@@ -38,14 +52,28 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
 leaderboardRoutes.route('/record/:collection/delete/:id').post((req, res) => {
   const { collection, id } = req.params;
   let db_connect = dbo.getDb('leaderboard');
-  console.log('deleting id ' + id)
-  const query = { _id: id };
+  const query = { _id: ObjectId(id) };
+  db_connect.collection(collection).deleteOne(query, (err, result) => {
+    if (err) console.log(err);
+    console.log('result', result);
+    res.json(result);
+  });
+});
+
+leaderboardRoutes.route('/record/:collection/approve/:id').post((req, res) => {
+  const { collection, id } = req.params;
+  let db_connect = dbo.getDb('leaderboard');
+  const query = { _id: ObjectId(id) };
+  const updatedDoc = { approved: true };
   db_connect
     .collection(collection)
-    .deleteOne(query, (err, result) => {
-      if (err) console.log(err)
-      res.json(result)
+    .updateOne(query, { $set: updatedDoc })
+    .then((res) => {
+      console.log('result', res);
     })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 module.exports = leaderboardRoutes;
