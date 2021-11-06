@@ -12,7 +12,6 @@ const ObjectId = require('mongodb').ObjectId;
 
 leaderboardRoutes.route('/table/:tableName').get((req, res) => {
   const { tableName } = req.params;
-  console.log('connect');
   let db_connect = dbo.getDb('leaderboard');
   const query = { tablename: tableName };
   db_connect
@@ -26,7 +25,6 @@ leaderboardRoutes.route('/table/:tableName').get((req, res) => {
 
 leaderboardRoutes.route('/record/:collection').get((req, res) => {
   const { collection } = req.params;
-  console.log('connect');
   let db_connect = dbo.getDb('leaderboard');
   db_connect
     .collection(collection)
@@ -35,6 +33,19 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
       if (err) throw err;
       res.json(result);
     });
+});
+
+leaderboardRoutes.route('/record/:collection/delete/:id').post((req, res) => {
+  const { collection, id } = req.params;
+  let db_connect = dbo.getDb('leaderboard');
+  console.log('deleting id ' + id)
+  const query = { _id: id };
+  db_connect
+    .collection(collection)
+    .deleteOne(query, (err, result) => {
+      if (err) console.log(err)
+      res.json(result)
+    })
 });
 
 module.exports = leaderboardRoutes;
