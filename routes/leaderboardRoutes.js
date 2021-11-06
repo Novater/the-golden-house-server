@@ -49,25 +49,28 @@ leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
     });
 });
 
-leaderboardRoutes.route('/record/:collection/delete/:id').post((req, res) => {
-  const { collection, id } = req.params;
+leaderboardRoutes.route('/record/:collection/delete').post((req, res) => {
+  const { collection } = req.params;
+  const records = req.body.records;
   let db_connect = dbo.getDb('leaderboard');
-  const query = { _id: ObjectId(id) };
-  db_connect.collection(collection).deleteOne(query, (err, result) => {
+  const recordIds = req.body.records.map((record) => ObjectId(record._id));
+  const query = { _id: { $in: recordIds }}
+  db_connect.collection(collection).deleteMany(query, (err, result) => {
     if (err) console.log(err);
     console.log('result', result);
     res.json(result);
   });
 });
 
-leaderboardRoutes.route('/record/:collection/approve/:id').post((req, res) => {
-  const { collection, id } = req.params;
+leaderboardRoutes.route('/record/:collection/approve').post((req, res) => {
+  const { collection } = req.params;
   let db_connect = dbo.getDb('leaderboard');
-  const query = { _id: ObjectId(id) };
+  const recordIds = req.body.records.map((record) => ObjectId(record._id));
+  const query = { _id: { $in: recordIds }}
   const updatedDoc = { approved: true };
   db_connect
     .collection(collection)
-    .updateOne(query, { $set: updatedDoc })
+    .updateMany(query, { $set: updatedDoc })
     .then((res) => {
       console.log('result', res);
     })
