@@ -12,6 +12,7 @@ const ObjectId = require('mongodb').ObjectId;
 
 leaderboardRoutes.route('/table/:tableName').get((req, res) => {
   const { tableName } = req.params;
+  console.log('req.user', req.user);
   let db_connect = dbo.getDb('leaderboard');
   const query = { tablename: tableName };
   db_connect

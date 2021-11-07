@@ -2,7 +2,6 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config({ path: './config.env' });
 
 const Db = process.env.ATLAS_URI;
-console.log(Db);
 const client = new MongoClient(Db, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -17,6 +16,7 @@ module.exports = {
       if (db) {
         dbs['leaderboard'] = db.db('leaderboard');
         dbs['content'] = db.db('content');
+        dbs['auth'] = db.db('auth');
 
         console.log('Successfully connected to MongoDB');
       }
