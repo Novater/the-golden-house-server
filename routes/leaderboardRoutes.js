@@ -49,6 +49,7 @@ leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
     });
 });
 
+
 leaderboardRoutes.route('/record/:collection/delete').post((req, res) => {
   const { collection } = req.params;
   const records = req.body.records;
