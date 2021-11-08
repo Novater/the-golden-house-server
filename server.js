@@ -15,12 +15,12 @@ const Ddos = require('ddos');
 const ddos = new Ddos({ burst: 10, limit: 15 });
 
 const { CORS_DEFAULT_CONFIG, SESSION_AGE } = config;
-
+app.enable('trust proxy');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(CORS_DEFAULT_CONFIG));
 app.use(ddos.express);
-app.set('trust proxy', 1);
+
 app.use(
   session({
     name: 'session-id',
