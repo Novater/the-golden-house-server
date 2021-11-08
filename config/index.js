@@ -5,7 +5,7 @@ module.exports = {
   },
   CORS_DEFAULT_CONFIG: {
     origin: [
-      '/http://localhost:.*/',
+      'http://localhost:3000',
       'https://afternoon-dusk-78000.herokuapp.com',
     ],
     // origin: true,

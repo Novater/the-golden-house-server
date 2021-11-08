@@ -24,19 +24,15 @@ app.use(ddos.express);
 app.use(
   session({
     name: 'session-id',
-    secret: process.env.SECRET_COOKIE,
+    secret: 'keyboard-cat',
     saveUninitialized: false,
     resave: false,
-    cookie: { maxAge: SESSION_AGE }
+    cookie: { maxAge: SESSION_AGE },
   }),
 );
 app.use(passport.initialize());
 app.use(passport.session());
 passportSetup();
-
-// passport.use(new LocalStrategy(User.authenticate()));
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
 
 app.use(helmet());
 app.use(require('./routes/leaderboardRoutes'));
