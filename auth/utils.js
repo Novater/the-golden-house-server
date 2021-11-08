@@ -16,7 +16,7 @@ const passportSetup = () => {
           if (err) return done(err, null);
           if (!user)
             return done(null, false, { message: 'Username does not exist' });
-          if (!verifyPassword(user.password, password))
+          if (!verifyPassword(password, user.password))
             return done(null, false, { message: 'Incorrect password.' });
           return done(null, user);
         });
