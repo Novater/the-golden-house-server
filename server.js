@@ -24,14 +24,14 @@ app.use(ddos.express);
 app.use(
   session({
     name: 'session-id',
-    secret: 'keyboard-cat',
+    secret: process.env.SECRET_COOKIE,
     saveUninitialized: false,
     resave: false,
     cookie: {
       maxAge: SESSION_AGE,
-      sameSite: 'none',
-      httpOnly: true,
-      secure: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : '',
+      httpOnly: process.env.NODE_ENV === 'production' ? true : '',
+      secure: process.env.NODE_ENV === 'production' ? true : '',
     },
   }),
 );
