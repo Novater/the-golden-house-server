@@ -38,6 +38,7 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
 
 leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
   const { collection } = req.params;
+  console.log(req.body.user);
   let db_connect = dbo.getDb('leaderboard');
   const query = { approved: { $in: [null, false] } };
   db_connect

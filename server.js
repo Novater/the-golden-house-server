@@ -1,34 +1,33 @@
-const express = require('express');
-const session = require('express-session');
-const app = express();
-
 require('dotenv').config();
-const cors = require('cors');
+
+const express = require('express');
+const app = express();
+const session = require('express-session');
 const helmet = require('helmet');
-const port = process.env.PORT || 8000;
-const { passportSetup, checkIsInRole } = require('./auth/utils');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('./models/User');
+
+const port = process.env.PORT || 8000;
 const dbo = require('./db/conn');
+const config = require('./config');
+const { passportSetup } = require('./auth/utils');
+const cors = require('cors');
+const Ddos = require('ddos');
+const ddos = new Ddos({ burst: 10, limit: 15 });
 
-app.use(cors({ credentials: true }));
+const { CORS_DEFAULT_CONFIG, SESSION_AGE } = config;
 
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // update to match the domain you will make the request from
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept',
-  );
-  next();
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors(CORS_DEFAULT_CONFIG));
+app.use(ddos.express);
 
 app.use(
   session({
     name: 'session-id',
-    secret: 'keyboard-cat',
+    secret: process.env.SECRET_COOKIE,
     saveUninitialized: false,
     resave: false,
+    cookie: { maxAge: SESSION_AGE }
   }),
 );
 app.use(passport.initialize());
@@ -40,7 +39,6 @@ passportSetup();
 // passport.deserializeUser(User.deserializeUser());
 
 app.use(helmet());
-app.use(express.json());
 app.use(require('./routes/leaderboardRoutes'));
 app.use(require('./routes/postRoutes'));
 app.use(require('./routes/pageRoutes'));

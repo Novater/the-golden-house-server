@@ -13,7 +13,7 @@ const passportSetup = () => {
         let db_connect = dbo.getDb('auth');
         const query = { username: username };
         db_connect.collection('user').findOne(query, (err, user) => {
-          if (err) console.log(err);
+          if (err) return done(err, null);
           if (!user)
             return done(null, false, { message: 'Username does not exist' });
           if (!verifyPassword(user.password, password))
@@ -29,14 +29,13 @@ const passportSetup = () => {
   passport.serializeUser((user, done) => done(null, user._id));
 
   passport.deserializeUser((id, done) => {
-    console.log('deserializing user', id);
     try {
       const user = ObjectId(id);
       let db_connect = dbo.getDb('auth');
       const query = { _id: user };
-      db_connect.collection('user').findOne(query, (err, result) => {
-        if (err) console.log(err);
-        return done(err, null);
+      db_connect.collection('user').findOne(query, (err, dbUser) => {
+        if (err) return done(err, null);
+        return done(null, dbUser);
       });
     } catch (err) {
       return done(err, null);
