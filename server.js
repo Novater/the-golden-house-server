@@ -27,7 +27,12 @@ app.use(
     secret: 'keyboard-cat',
     saveUninitialized: false,
     resave: false,
-    cookie: { maxAge: SESSION_AGE },
+    cookie: {
+      maxAge: SESSION_AGE,
+      sameSite: 'none',
+      httpOnly: true,
+      secure: true,
+    },
   }),
 );
 app.use(passport.initialize());
