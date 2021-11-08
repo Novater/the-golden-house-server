@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(CORS_DEFAULT_CONFIG));
 app.use(ddos.express);
-app.use('trust proxy', 1);
+app.set('trust proxy', 1);
 app.use(
   session({
     name: 'session-id',
