@@ -4,11 +4,11 @@ module.exports = {
     EDITOR: 'EDITOR',
   },
   CORS_DEFAULT_CONFIG: {
-    // origin: [
-    //   '/http://localhost:.*/',
-    //   'https://afternoon-dusk-78000.herokuapp.com',
-    // ],
-    origin: true,
+    origin: [
+      '/http://localhost:.*/',
+      'https://afternoon-dusk-78000.herokuapp.com',
+    ],
+    // origin: true,
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept'],
     methods: 'GET,POST',
     credentials: true,
