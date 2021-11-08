@@ -7,6 +7,7 @@ const leaderboardRoutes = express.Router();
 
 // This will help us connect to the database
 const dbo = require('../db/conn');
+const { authUser } = require('../auth/utils');
 
 const ObjectId = require('mongodb').ObjectId;
 
@@ -36,7 +37,7 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
     });
 });
 
-leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
+leaderboardRoutes.route('/record/:collection/admin').get(authUser, (req, res) => {
   const { collection } = req.params;
   console.log(req.body.user);
   let db_connect = dbo.getDb('leaderboard');
@@ -50,8 +51,7 @@ leaderboardRoutes.route('/record/:collection/admin').get((req, res) => {
     });
 });
 
-
-leaderboardRoutes.route('/record/:collection/delete').post((req, res) => {
+leaderboardRoutes.route('/record/:collection/delete').post(authUser, (req, res) => {
   const { collection } = req.params;
   const records = req.body.records;
   let db_connect = dbo.getDb('leaderboard');
@@ -64,7 +64,7 @@ leaderboardRoutes.route('/record/:collection/delete').post((req, res) => {
   });
 });
 
-leaderboardRoutes.route('/record/:collection/approve').post((req, res) => {
+leaderboardRoutes.route('/record/:collection/approve').post(authUser, (req, res) => {
   const { collection } = req.params;
   let db_connect = dbo.getDb('leaderboard');
   const recordIds = req.body.records.map((record) => ObjectId(record._id));

@@ -7,6 +7,7 @@ const postRoutes = express.Router();
 
 // This will help us connect to the database
 const dbo = require('../db/conn');
+const { authUser } = require('../auth/utils');
 
 const ObjectId = require('mongodb').ObjectId;
 
@@ -23,7 +24,7 @@ postRoutes.route('/post/:name').get((req, res) => {
     });
 });
 
-postRoutes.route('/post/delete').post((req, res) => {
+postRoutes.route('/post/delete').post(authUser, (req, res) => {
   const id = ObjectId(req.body.id);
   let db_connect = dbo.getDb('content');
 
@@ -39,7 +40,7 @@ postRoutes.route('/post/delete').post((req, res) => {
   });
 });
 
-postRoutes.route('/post/update').post((req, res) => {
+postRoutes.route('/post/update').post(authUser, (req, res) => {
   const id = ObjectId(req.body.id);
   const { title, content } = req.body;
   let db_connect = dbo.getDb('content');
@@ -63,7 +64,7 @@ postRoutes.route('/post/update').post((req, res) => {
     });
 });
 
-postRoutes.route('/post/create').post((req, res) => {
+postRoutes.route('/post/create').post(authUser, (req, res) => {
   const { tabname, index } = req.body;
   let db_connect = dbo.getDb('content');
 

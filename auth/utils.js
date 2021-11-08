@@ -47,16 +47,10 @@ const verifyPassword = (candidate, actual) => {
   return bcrypt.compareSync(candidate, actual);
 };
 
-const checkIsinRole =
-  (...roles) =>
-  (req, res, next) => {
-    if (req.username) res.redirect('/login');
-    const hasRole = roles.find((role) => req.role === role);
-    if (!hasRole) {
-      return res.redirect('/login');
-    }
-
+const authUser = (req, res, next) => {
+  if (req.isAuthenticated())
     return next();
-  };
+  res.status(401).json('Not Authenticated.')
+}
 
-module.exports = { passportSetup, checkIsinRole };
+module.exports = { passportSetup, authUser };
