@@ -12,81 +12,67 @@ const postFunctions = require('../functions/postFunctions');
 
 const ObjectId = require('mongodb').ObjectId;
 
-postRoutes.route('/post/:name').get(async (req, res) => {
-  const { name } = req.params;
+postRoutes.route('/post/:tab').get(async (req, res) => {
+  const { tab } = req.params;
 
   try {
-    const posts = await postFunctions.getPostsInOrder(name);
-    res.json(posts);
+    const { data } = await postFunctions.findPostsByPage(tab);
+    console.log('data', data);
+    const structuredPosts = postFunctions.convert1Dto2DPostArray(data);
+    console.log('structuredPosts', structuredPosts);
+    res.json(structuredPosts);
   } catch (error) {
     res.json(error);
   }
 });
 
-postRoutes.route('/post/delete').post(authUser, async (req, res) => {
-  try {
-    const originPost = await postFunctions.findPostById(req.body.id);
-    const deletePost = await postFunctions.deletePost(originPost);
-    res.json(deletePost);
-  } catch (error) {
-    res.json(error);
-  }
-});
-
-postRoutes.route('/post/update').post(authUser, (req, res) => {
+postRoutes.route('/post/submit').post(authUser, async (req, res) => {
   const id = ObjectId(req.body.id);
-  const { title, content } = req.body;
+  const { posts, tab } = req.body;
   let db_connect = dbo.getDb('content');
+  const { data } = await postFunctions.findPostsByPage(tab);
+  console.log('data', data);
+  const deleteManyObj = postFunctions.getDeleteManyObj(data);
 
-  let query = {
-    _id: id,
-  };
-  let updatedDoc = {
-    title,
-    content,
-  };
+  console.log('deleteManyObj', deleteManyObj);
+  console.log('posts', posts);
+  let deleteFailed = false;
+  let insertFailed = false;
 
-  db_connect
-    .collection('post')
-    .updateOne(query, { $set: updatedDoc })
-    .then((res) => {
-      console.log('result', res);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-postRoutes.route('/post/create').post(authUser, async (req, res) => {
-  const { tabname, index } = req.body;
-  const indexParse = index.split('-');
-  const position = indexParse[0];
-  const originId = indexParse[1];
-
-  let db_connect = dbo.getDb('content');
-
-  let newDoc = {
-    title: 'New Post',
-    content: 'This is a blank post.',
-    tabname,
-    prev: null,
-    next: null,
-  };
-
+  // Saga 1 : Perform delete operation
   try {
-    if (originId) {
-      console.log('originId', originId);
-      console.log('position', position);
-      const originPost = await postFunctions.findPostById(originId);
-      const response = await postFunctions.insertNewPost(originPost, newDoc, position);
-      res.json(response);
-    } else {
-      const result = db_connect.collection('post').insertOne(newDoc);
-      res.json(result);
-    }
+    const deleteRes = await db_connect
+      .collection('post')
+      .deleteMany({ _id: { $in: deleteManyObj } });
   } catch (error) {
     console.log(error);
-    res.json(error);
+    deleteFailed = true;
+  }
+
+  // Saga 2 : Perform insert operation
+  try {
+    const posts1DArr = postFunctions.destructure2DArrayTo1DWithIndexing(
+      posts,
+      tab,
+    );
+    const insertRes = await db_connect
+      .collection('post')
+      .insertMany(posts1DArr);
+  } catch (error) {
+    console.log(error);
+    insertFailed = true;
+  }
+
+  if (insertFailed || deleteFailed) {
+    postFunctions.rollbackBulkDeleteWrite({
+      deleteFailed,
+      insertFailed,
+      posts,
+      tab,
+    });
+    res.json({ status_code: 400, msg: 'Error' });
+  } else {
+    res.json({ status_code: 200, msg: 'Success' });
   }
 });
 
