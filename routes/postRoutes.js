@@ -1,5 +1,5 @@
 const express = require('express');
-
+const _ = require('lodash');
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /record.
@@ -8,78 +8,72 @@ const postRoutes = express.Router();
 // This will help us connect to the database
 const dbo = require('../db/conn');
 const { authUser } = require('../auth/utils');
+const postFunctions = require('../functions/postFunctions');
 
 const ObjectId = require('mongodb').ObjectId;
 
-postRoutes.route('/post/:name').get((req, res) => {
-  const { name } = req.params;
-  let db_connect = dbo.getDb('content');
-  let query = { tabname: name };
-  db_connect
-    .collection('post')
-    .find(query)
-    .toArray((err, result) => {
-      if (err) throw err;
-      res.json(result);
-    });
+postRoutes.route('/post/:tab').get(async (req, res) => {
+  const { tab } = req.params;
+
+  try {
+    const { data } = await postFunctions.findPostsByPage(tab);
+    console.log('data', data);
+    const structuredPosts = postFunctions.convert1Dto2DPostArray(data);
+    console.log('structuredPosts', structuredPosts);
+    res.json(structuredPosts);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
-postRoutes.route('/post/delete').post(authUser, (req, res) => {
+postRoutes.route('/post/submit').post(authUser, async (req, res) => {
   const id = ObjectId(req.body.id);
+  const { posts, tab } = req.body;
   let db_connect = dbo.getDb('content');
+  const { data } = await postFunctions.findPostsByPage(tab);
+  console.log('data', data);
+  const deleteManyObj = postFunctions.getDeleteManyObj(data);
 
-  let query = {
-    _id: id,
-  };
+  console.log('deleteManyObj', deleteManyObj);
+  console.log('posts', posts);
+  let deleteFailed = false;
+  let insertFailed = false;
 
-  db_connect.collection('post').deleteOne(query, (err, result) => {
-    if (err) throw err;
-    console.log(`Document ${id} deleted.`);
-    console.log('result', result);
-    res.json(result);
-  });
-});
+  // Saga 1 : Perform delete operation
+  try {
+    const deleteRes = await db_connect
+      .collection('post')
+      .deleteMany({ _id: { $in: deleteManyObj } });
+  } catch (error) {
+    console.log(error);
+    deleteFailed = true;
+  }
 
-postRoutes.route('/post/update').post(authUser, (req, res) => {
-  const id = ObjectId(req.body.id);
-  const { title, content } = req.body;
-  let db_connect = dbo.getDb('content');
+  // Saga 2 : Perform insert operation
+  try {
+    const posts1DArr = postFunctions.destructure2DArrayTo1DWithIndexing(
+      posts,
+      tab,
+    );
+    const insertRes = await db_connect
+      .collection('post')
+      .insertMany(posts1DArr);
+  } catch (error) {
+    console.log(error);
+    insertFailed = true;
+  }
 
-  let query = {
-    _id: id,
-  };
-  let updatedDoc = {
-    title,
-    content,
-  };
-
-  db_connect
-    .collection('post')
-    .updateOne(query, { $set: updatedDoc })
-    .then((res) => {
-      console.log('result', res);
-    })
-    .catch((err) => {
-      console.log(err);
+  if (insertFailed || deleteFailed) {
+    postFunctions.rollbackBulkDeleteWrite({
+      deleteFailed,
+      insertFailed,
+      posts,
+      tab,
     });
-});
-
-postRoutes.route('/post/create').post(authUser, (req, res) => {
-  const { tabname, index } = req.body;
-  let db_connect = dbo.getDb('content');
-
-  let newDoc = {
-    title: 'New Post',
-    content: 'New Post Content',
-    tabname,
-  };
-
-  db_connect.collection('post').insertOne(newDoc, (err, result) => {
-    if (err) throw err;
-
-    console.log('result', result);
-    res.json(result);
-  });
+    res.json({ status_code: 400, msg: 'Error' });
+  } else {
+    res.json({ status_code: 200, msg: 'Success' });
+  }
 });
 
 module.exports = postRoutes;
