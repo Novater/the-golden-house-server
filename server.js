@@ -12,7 +12,7 @@ const config = require('./config');
 const { passportSetup } = require('./auth/utils');
 const cors = require('cors');
 const Ddos = require('ddos');
-const ddos = new Ddos({ burst: 10, limit: 15 });
+const ddos = new Ddos({ burst: 10, limit: 25 });
 
 const { CORS_DEFAULT_CONFIG, SESSION_AGE } = config;
 app.enable('trust proxy');

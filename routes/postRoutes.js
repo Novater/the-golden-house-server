@@ -27,7 +27,6 @@ postRoutes.route('/post/:tab').get(async (req, res) => {
 });
 
 postRoutes.route('/post/submit').post(authUser, async (req, res) => {
-  const id = ObjectId(req.body.id);
   const { posts, tab } = req.body;
   let db_connect = dbo.getDb('content');
   const { data } = await postFunctions.findPostsByPage(tab);

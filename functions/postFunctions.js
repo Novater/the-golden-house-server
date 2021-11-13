@@ -59,7 +59,7 @@ class postFunctions {
 
   static async deletePosts(posts) {
     try {
-      const postIds = posts.map((post) => ObjectId(post._id));
+      const postIds = posts.map((post) => post._id);
       let db_connect = dbo.getDb('content');
       const deleteRes = await db_connect
         .collection('post')
@@ -79,11 +79,14 @@ class postFunctions {
 
     for (let row = 0; row < inputArr.length; row += 1) {
       for (let col = 0; col < inputArr[row].length; col += 1) {
+        const objectId = inputArr[row][col]._id;
+        console.log(objectId);
         const flattenedEl = {
           ...inputArr[row][col],
           row,
           col,
-          tabname: tab
+          tabname: tab,
+          _id: ObjectId(objectId),
         };
         finalArr.push(flattenedEl);
       }
@@ -97,12 +100,12 @@ class postFunctions {
     if (inputArr.length === 0) return [];
 
     let returnArr = [];
-    
+
     inputArr.sort((postA, postB) => {
       if (postA.row === postB.row) {
         return postA.col - postB.col;
       }
-      
+
       return postA.row - postB.row;
     });
 
