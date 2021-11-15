@@ -17,9 +17,9 @@ postRoutes.route('/post/:tab').get(async (req, res) => {
 
   try {
     const { data } = await postFunctions.findPostsByPage(tab);
-    console.log('data', data);
+
     const structuredPosts = postFunctions.convert1Dto2DPostArray(data);
-    console.log('structuredPosts', structuredPosts);
+
     res.json(structuredPosts);
   } catch (error) {
     res.json(error);
@@ -30,11 +30,8 @@ postRoutes.route('/post/submit').post(authUser, async (req, res) => {
   const { posts, tab } = req.body;
   let db_connect = dbo.getDb('content');
   const { data } = await postFunctions.findPostsByPage(tab);
-  console.log('data', data);
   const deleteManyObj = postFunctions.getDeleteManyObj(data);
 
-  console.log('deleteManyObj', deleteManyObj);
-  console.log('posts', posts);
   let deleteFailed = false;
   let insertFailed = false;
 

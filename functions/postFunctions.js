@@ -80,7 +80,6 @@ class postFunctions {
     for (let row = 0; row < inputArr.length; row += 1) {
       for (let col = 0; col < inputArr[row].length; col += 1) {
         const objectId = inputArr[row][col]._id;
-        console.log(objectId);
         const flattenedEl = {
           ...inputArr[row][col],
           row,
@@ -96,7 +95,7 @@ class postFunctions {
   }
 
   static convert1Dto2DPostArray(inputArr, tab = null) {
-    console.log('inputArr', inputArr);
+
     if (inputArr.length === 0) return [];
 
     let returnArr = [];
@@ -118,7 +117,6 @@ class postFunctions {
     for (const post of inputArr) {
       returnArr[post.row].push(post);
     }
-    console.log(returnArr);
     return returnArr;
   }
 

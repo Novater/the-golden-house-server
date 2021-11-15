@@ -20,12 +20,13 @@ leaderboardRoutes.route('/table/:tableName').get((req, res) => {
     .find(query)
     .toArray((err, result) => {
       if (err) throw err;
-      res.json(result[0]);
+      res.send(result[0]);
     });
 });
 
 leaderboardRoutes.route('/record/:collection').get((req, res) => {
   const { collection } = req.params;
+  console.log(collection);
   let db_connect = dbo.getDb('leaderboard');
   const query = { approved: true };
   db_connect
@@ -33,52 +34,57 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
     .find(query)
     .toArray((err, result) => {
       if (err) throw err;
-      res.json(result);
+      res.send({ status_code: 200, msg: 'success', data: result });
     });
 });
 
-leaderboardRoutes.route('/record/:collection/admin').get(authUser, (req, res) => {
-  const { collection } = req.params;
-  console.log(req.body.user);
-  let db_connect = dbo.getDb('leaderboard');
-  const query = { approved: { $in: [null, false] } };
-  db_connect
-    .collection(collection)
-    .find(query)
-    .toArray((err, result) => {
-      if (err) throw err;
-      res.json(result);
-    });
-});
-
-leaderboardRoutes.route('/record/:collection/delete').post(authUser, (req, res) => {
-  const { collection } = req.params;
-  const records = req.body.records;
-  let db_connect = dbo.getDb('leaderboard');
-  const recordIds = req.body.records.map((record) => ObjectId(record._id));
-  const query = { _id: { $in: recordIds }}
-  db_connect.collection(collection).deleteMany(query, (err, result) => {
-    if (err) console.log(err);
-    console.log('result', result);
-    res.json(result);
+leaderboardRoutes
+  .route('/record/:collection/admin')
+  .get(authUser, (req, res) => {
+    const { collection } = req.params;
+    console.log(req.body.user);
+    let db_connect = dbo.getDb('leaderboard');
+    const query = { approved: { $in: [null, false] } };
+    db_connect
+      .collection(collection)
+      .find(query)
+      .toArray((err, result) => {
+        if (err) throw err;
+        res.json(result);
+      });
   });
-});
 
-leaderboardRoutes.route('/record/:collection/approve').post(authUser, (req, res) => {
-  const { collection } = req.params;
-  let db_connect = dbo.getDb('leaderboard');
-  const recordIds = req.body.records.map((record) => ObjectId(record._id));
-  const query = { _id: { $in: recordIds }}
-  const updatedDoc = { approved: true };
-  db_connect
-    .collection(collection)
-    .updateMany(query, { $set: updatedDoc })
-    .then((res) => {
-      console.log('result', res);
-    })
-    .catch((err) => {
-      console.log(err);
+leaderboardRoutes
+  .route('/record/:collection/delete')
+  .post(authUser, (req, res) => {
+    const { collection } = req.params;
+    const records = req.body.records;
+    let db_connect = dbo.getDb('leaderboard');
+    const recordIds = req.body.records.map((record) => ObjectId(record._id));
+    const query = { _id: { $in: recordIds } };
+    db_connect.collection(collection).deleteMany(query, (err, result) => {
+      if (err) console.log(err);
+      res.json(result);
     });
-});
+  });
+
+leaderboardRoutes
+  .route('/record/:collection/approve')
+  .post(authUser, (req, res) => {
+    const { collection } = req.params;
+    let db_connect = dbo.getDb('leaderboard');
+    const recordIds = req.body.records.map((record) => ObjectId(record._id));
+    const query = { _id: { $in: recordIds } };
+    const updatedDoc = { approved: true };
+    db_connect
+      .collection(collection)
+      .updateMany(query, { $set: updatedDoc })
+      .then((res) => {
+        console.log('result', res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 
 module.exports = leaderboardRoutes;
