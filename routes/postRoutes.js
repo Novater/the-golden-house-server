@@ -1,5 +1,7 @@
 const express = require('express');
 const _ = require('lodash');
+const testData = require('../testdata/testdata').testJSON;
+
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /record.
@@ -11,6 +13,10 @@ const { authUser } = require('../auth/utils');
 const postFunctions = require('../functions/postFunctions');
 
 const ObjectId = require('mongodb').ObjectId;
+
+postRoutes.route('/testdata').get(async (req, res) => {
+  res.json(testData);
+});
 
 postRoutes.route('/post/:tab').get(async (req, res) => {
   const { tab } = req.params;

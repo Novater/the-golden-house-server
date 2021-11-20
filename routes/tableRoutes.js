@@ -3,7 +3,7 @@ const express = require('express');
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /record.
-const leaderboardRoutes = express.Router();
+const tableRoutes = express.Router();
 
 // This will help us connect to the database
 const dbo = require('../db/conn');
@@ -11,7 +11,7 @@ const { authUser } = require('../auth/utils');
 
 const ObjectId = require('mongodb').ObjectId;
 
-leaderboardRoutes.route('/table/:tableName').get((req, res) => {
+tableRoutes.route('/table/:tableName').get((req, res) => {
   const { tableName } = req.params;
   let db_connect = dbo.getDb('leaderboard');
   const query = { tablename: tableName };
@@ -24,7 +24,7 @@ leaderboardRoutes.route('/table/:tableName').get((req, res) => {
     });
 });
 
-leaderboardRoutes.route('/record/:collection').get((req, res) => {
+tableRoutes.route('/record/:collection').get((req, res) => {
   const { collection } = req.params;
   console.log(collection);
   let db_connect = dbo.getDb('leaderboard');
@@ -38,7 +38,7 @@ leaderboardRoutes.route('/record/:collection').get((req, res) => {
     });
 });
 
-leaderboardRoutes
+tableRoutes
   .route('/record/:collection/admin')
   .get(authUser, (req, res) => {
     const { collection } = req.params;
@@ -54,7 +54,7 @@ leaderboardRoutes
       });
   });
 
-leaderboardRoutes
+tableRoutes
   .route('/record/:collection/delete')
   .post(authUser, (req, res) => {
     const { collection } = req.params;
@@ -68,7 +68,7 @@ leaderboardRoutes
     });
   });
 
-leaderboardRoutes
+tableRoutes
   .route('/record/:collection/approve')
   .post(authUser, (req, res) => {
     const { collection } = req.params;
@@ -87,4 +87,4 @@ leaderboardRoutes
       });
   });
 
-module.exports = leaderboardRoutes;
+module.exports = tableRoutes;

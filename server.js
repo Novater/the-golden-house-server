@@ -35,15 +35,17 @@ app.use(
     },
   }),
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 passportSetup();
 
 app.use(helmet());
-app.use(require('./routes/leaderboardRoutes'));
+app.use(require('./routes/tableRoutes'));
 app.use(require('./routes/postRoutes'));
 app.use(require('./routes/pageRoutes'));
 app.use(require('./routes/authRoutes'));
+app.use(require('./routes/apiRoutes'));
 
 app.listen(port, () => {
   // perform database connection when the server starts
