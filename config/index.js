@@ -6,7 +6,7 @@ module.exports = {
   CORS_DEFAULT_CONFIG: {
     origin: [
       'http://localhost:3000',
-      'https://afternoon-dusk-78000.herokuapp.com',
+      'https://thegoldenhouse.herokuapp.com',
     ],
     credentials: true,
     preflightContinue: true,
